@@ -1,4 +1,5 @@
 $(document).ready(() => {
+
     fetchData(displayResults);
 });
 
@@ -24,8 +25,8 @@ function simpleDataset(info, label, field, colour) {
     };
 }
 
-function dailyDataset(info, label, field, colour) { //function (oldData) -> newData
-    data = []
+function dailyDataset(info, label, field, colour) {
+    data = [];
     newData = dailyDataFunc(info, field);
     for (var i = 0; i < info.length; i++) {
         data.push({x: info[i]["Reported Date"], y: newData[i]});
@@ -38,10 +39,39 @@ function dailyDataset(info, label, field, colour) { //function (oldData) -> newD
     };
 }
 
+function avgDailyDataset(info, label, field, colour) {
+    data = [];
+    newData = avgDailyDataFunc(dailyDataFunc(info, field));
+    for (var i = 0; i < info.length; i++) {
+        data.push({x: info[i]["Reported Date"], y: newData[i]});
+    }
+    console.log(data);
+    return {
+        label: label,
+        borderColor: colour,
+        backgroundColor: 'rgba(0, 0, 0, 0)',
+        pointRadius: 0,
+        data: data,
+        type: "line",
+    };
+}
+
+function avgDailyDataFunc(oldData) { //takes the data normally in array
+    //Calculates a 5 day rolling average
+    //l = oldData.map((t) => t[field]);
+    l = oldData;
+    l1 = [];
+    for (var i = 0; i < l.length; i++) {
+        l1.push((l[i] + l[i-1] + l[i-2] + l[i-3] + l[i-4])/5);
+    }
+    console.log(l1);
+    return l1
+}
+
 function dailyDataFunc(oldData, field) {
     l = oldData.map((t) => t[field]);
     l.unshift(0);
-    l1 = []
+    l1 = [];
     for (var i = 0; i < l.length; i++) {
         l1.push(l[i] - l[i - 1]);
     }
@@ -80,6 +110,15 @@ function displayResults(results) {
                     }
                 }
             },
+            tooltips: {
+                titleFontSize: 16,
+                bodyFontSize: 14,
+                callbacks: {
+                    title: (tt) => {
+                        return moment(tt[0].label).format("ddd, MMM D, YYYY");
+                    }
+                }
+            },
             scales: {
                 xAxes: [{
                     type: 'time',
@@ -97,6 +136,7 @@ function displayResults(results) {
     });
 
     dispChart.data.datasets.push(
+        avgDailyDataset(results, "Daily New Cases (5-Day Avg)", "Total Cases", "#000080"),
         dailyDataset(results, "Daily New Cases", "Total Cases", "#008888"),
         simpleDataset(results, "Cumulative Cases", "Total Cases", "#000000"),
         simpleDataset(results, "Active Cases", "Confirmed Positive", "#ff0000"),

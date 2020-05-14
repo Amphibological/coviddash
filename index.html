@@ -17,11 +17,35 @@
 
         <script src="./main.js"></script>
 
-        <h1>Ontario COVID-19 Dashboard</h1>
+        
         <div id="main" class="container">
-
-            <div id="btns" class="btn-group"></div>
-            <canvas id="display"></canvas>
+            <div class="row">
+                <div class="col">
+                    <h1>Ontario COVID-19 Dashboard</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div id="btns" class="btn-group"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col"></div>
+                <div class="col-md-auto">
+                    <div id="zoom" class="btn-group">
+                        <button id="zoom-in" class="btn-outline-secondary">+</button>
+                        <button id="zoom-reset" class="btn-outline-secondary">o</button>
+                        <button id="zoom-out" class="btn-outline-secondary">-</button>
+                    </div>
+                </div>
+                <div class="col"></div>
+            </div>
+            
+            <div class="row">
+                <div class="col">
+                    <canvas id="display" height="100%"></canvas>
+                </div>
+            </div>
 
         </div>
 
