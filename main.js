@@ -1,20 +1,3 @@
-const fields = [
-"Reported Date",
-"Confirmed Negative",
-"Presumptive Negative",
-"Presumptive Positive",
-"Confirmed Positive",
-"Resolved",
-"Deaths",
-"Total Cases",
-"Total patients approved for testing as of Reporting Date",
-"Total tests completed in the last day",
-"Under Investigation",
-"Number of patients hospitalized with COVID-19",
-"Number of patients in ICU with COVID-19",
-"Number of patients in ICU on a ventilator with COVID-19",
-];
-
 $(document).ready(() => {
     fetchData(displayResults);
 });
@@ -31,14 +14,40 @@ function fetchData(successHandler) {
     });
 }
 
-function createDataset(info, field, colour) {
+function simpleDataset(info, label, field, colour) {
     return {
-        label: field,
+        label: label,
         backgroundColor: colour,
         data: info.map((item) => {
             return {x: item["Reported Date"], y: item[field]};
         }),
     };
+}
+
+function dailyDataset(info, label, field, colour) { //function (oldData) -> newData
+    data = []
+    newData = dailyDataFunc(info, field);
+    for (var i = 0; i < info.length; i++) {
+        data.push({x: info[i]["Reported Date"], y: newData[i]});
+    }
+    console.log(data);
+    return {
+        label: label,
+        backgroundColor: colour,
+        data: data,
+    };
+}
+
+function dailyDataFunc(oldData, field) {
+    l = oldData.map((t) => t[field]);
+    l.unshift(0);
+    l1 = []
+    for (var i = 0; i < l.length; i++) {
+        l1.push(l[i] - l[i - 1]);
+    }
+    l1.shift();
+    console.log(l1);
+    return l1
 }
 
 function displayResults(results) {
@@ -87,12 +96,45 @@ function displayResults(results) {
         }
     });
 
-    for (fieldNum = 0; fieldNum < fields.length; fieldNum++) {
-        dispChart.data.datasets.push(createDataset(results, fields[fieldNum], "#" + ((Math.trunc(0xffffff/fields.length) * fieldNum)).toString(16)));
-        dispChart.getDatasetMeta(fieldNum).hidden = true;
+    dispChart.data.datasets.push(
+        dailyDataset(results, "Daily New Cases", "Total Cases", "#008888"),
+        simpleDataset(results, "Cumulative Cases", "Total Cases", "#000000"),
+        simpleDataset(results, "Active Cases", "Confirmed Positive", "#ff0000"),
+        simpleDataset(results, "Resolved Cases", "Resolved", "#00ff00"),
+        dailyDataset(results, "Daily Deaths", "Deaths", "#880088"),
+        simpleDataset(results, "Cumulative Deaths", "Deaths", "#0000ff"),
+        simpleDataset(results, "Daily Tests Completed", "Total tests completed in the last day", "#888800"),
+        simpleDataset(results, "Hospitalized Patients", "Number of patients hospitalized with COVID-19", "#880000"),
+        simpleDataset(results, "Patients in ICU", "Number of patients in ICU with COVID-19", "#008800"),
+        simpleDataset(results, "Patients on a Ventilator", "Number of patients in ICU on a ventilator with COVID-19", "#000088"),
+    );
+    
+    for (var i = 0; i < dispChart.data.datasets.length; i++) {
+        dispChart.getDatasetMeta(i).hidden = true;
     }
-    //dispChart.data.datasets.push(createDataset(results, "Deaths", "#ff0000"));
-    //dispChart.data.datasets.push(createDataset(results, "Total tests completed in the last day", "#00ff00"));
-    //dispChart.getDatasetMeta(0).hidden = true;
     dispChart.update();
+
+    dispChart.data.datasets.forEach((f) => {
+        $("#btns").append('<button class="btn btn-outline-primary">' + f.label + "</button>");
+    });
+
+    $(".btn").click((e) => {
+        //console.log(fields.indexOf($(e.target).html()));
+        $(e.target).toggleClass("active");
+        var index = dispChart.data.datasets.findIndex((ds) => ds.label == $(e.target).text());
+        dispChart.getDatasetMeta(index).hidden = !dispChart.getDatasetMeta(index).hidden;
+        dispChart.update();
+    });
+
+    $(".btn").dblclick((e) => {
+        //console.log(fields.indexOf($(e.target).html()));
+        $("#btns").children().removeClass("active");
+        $(e.target).addClass("active");
+        for (var i = 0; i < dispChart.data.datasets.length; i++) {
+            dispChart.getDatasetMeta(i).hidden = true;
+        }
+        var index = dispChart.data.datasets.findIndex((ds) => ds.label == $(e.target).text());
+        dispChart.getDatasetMeta(index).hidden = false;
+        dispChart.update();
+    });
 }
