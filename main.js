@@ -1,7 +1,7 @@
 /*
 KNOWN BUGS:
 - Date range change function (INCREASING ENDPOINT) fails when averages are enabled
-- Checkboxes not properly disabling when double-click is used to change datasets
+- FIXED Checkboxes not properly disabling when double-click is used to change datasets
 
 */
 
@@ -280,7 +280,9 @@ function displayResults(inputData) {
             return;
         }
         $("#btns").children().removeClass("active");
-
+        console.log($("#btns").children().children("input"));
+        $("#btns").children().children("input").prop("checked", false);
+        $("#btns").children().children("input").attr("disabled", true);
         if ($(e.target).children().length) {
             if ($(e.target).children("input")[0].hasAttribute("disabled")) {
                 $(e.target).children("input").removeAttr("disabled");
