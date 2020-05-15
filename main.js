@@ -263,10 +263,10 @@ function displayResults(results) {
 
     $("#avg").change((e) => {
         avgPeriod = $("#avg").val();
-        console.log(avgPeriod);
+        //console.log(avgPeriod);
         var hiddens = [];
         for (var i = 0; i < dispChart.data.datasets.length; i++) {
-            hiddens.push(dispChart.getDatasetMeta(i).hidden)
+            hiddens.push(dispChart.getDatasetMeta(i).hidden);
         }
         dispChart.data.datasets = [];
         dispChart.data.datasets.push(
@@ -289,7 +289,7 @@ function displayResults(results) {
             avgDataset(results, "Patients on a Ventilator AVG", "Number of patients in ICU on a ventilator with COVID-19", "#000080"),
         );
         for (var i = 0; i < dispChart.data.datasets.length; i++) {
-            dispChart.getDatasetMeta(i).hidden = hiddens;
+            dispChart.getDatasetMeta(i).hidden = hiddens[i];
         }
         dispChart.update();
     });
