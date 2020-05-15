@@ -1,6 +1,26 @@
+/*
+KNOWN BUGS:
+- Date range change function (INCREASING ENDPOINT) fails when averages are enabled
+- Checkboxes not properly disabling when double-click is used to change datasets
+
+*/
+
 let avgPeriod = 5;
+let startDate, endDate;
+let fullResults, results;
+let dispChart;
+
+let DATA_START_DATE = moment([2020, 0, 26]);
+let DATA_END_DATE = moment([2020, 4, 15]);
 
 $(document).ready(() => {
+    $("#avg").val(5);
+    $("#datepicker").datepicker({
+        startDate: DATA_START_DATE.toDate(),
+        endDate: DATA_END_DATE.toDate(),
+    });
+    $('#datestart').datepicker('update', DATA_START_DATE.toDate());
+    $('#dateend').datepicker('update', DATA_END_DATE.toDate());
 
     fetchData(displayResults);
 
@@ -86,7 +106,7 @@ function avgDataFunc(oldData, field) { //takes the data normally in array
     l1 = [];
     for (var i = 0; i < l.length; i++) {
         //l1.push((l.slice(i-(avgPeriod - 1), i+1).reduce((a, b) => a + b, 0)) / avgPeriod);
-        l1.push((l.slice(i - (Math.ceil(avgPeriod/2)), i + (Math.floor(avgPeriod/2))).reduce((a, b) => a + b, 0)) / avgPeriod);
+        l1.push((l.slice(i - (Math.floor(avgPeriod/2)), i + (Math.ceil(avgPeriod/2))).reduce((a, b) => a + b, 0)) / avgPeriod);
     }
     //console.log(l1);
     return l1
@@ -99,7 +119,7 @@ function avgDailyDataFunc(oldData) { //takes the data normally in array
     l1 = [];
     for (var i = 0; i < l.length; i++) {
         //l1.push((l.slice(i-(avgPeriod - 1), i+1).reduce((a, b) => a + b, 0)) / avgPeriod);
-        l1.push((l.slice(i - (Math.ceil(avgPeriod/2)), i + (Math.floor(avgPeriod/2))).reduce((a, b) => a + b, 0)) / avgPeriod);
+        l1.push((l.slice(i - (Math.floor(avgPeriod/2)), i + (Math.ceil(avgPeriod/2))).reduce((a, b) => a + b, 0)) / avgPeriod);
     }
     //console.log(l1);
     return l1
@@ -118,14 +138,45 @@ function dailyDataFunc(oldData, field) {
     return l1
 }
 
-function displayResults(results) {
-    //console.log(results);
+function regenDatasets() {
+    let hiddens = [];
+    for (let i = 0; i < dispChart.data.datasets.length; i++) {
+        hiddens.push(dispChart.getDatasetMeta(i).hidden);
+    }
+    dispChart.data.datasets = [];
+    dispChart.data.datasets.push(
+        dailyDataset(results, "Daily New Cases", "Total Cases", "#008888"),
+        avgDailyDataset(results, "Daily New Cases AVG", "Total Cases", "#000080"),
+        simpleDataset(results, "Cumulative Cases", "Total Cases", "#000000"),
+        simpleDataset(results, "Active Cases", "Confirmed Positive", "#ff0000"),
+        avgDataset(results, "Active Cases AVG", "Confirmed Positive", "#000080"),
+        simpleDataset(results, "Resolved Cases", "Resolved", "#00ff00"),
+        dailyDataset(results, "Daily Deaths", "Deaths", "#880088"),
+        avgDailyDataset(results, "Daily Deaths AVG", "Deaths", "#000080"),
+        simpleDataset(results, "Cumulative Deaths", "Deaths", "#0000ff"),
+        simpleDataset(results, "Daily Tests Completed", "Total tests completed in the last day", "#888800"),
+        avgDataset(results, "Daily Tests Completed AVG", "Total tests completed in the last day", "#000080"),
+        simpleDataset(results, "Hospitalized Patients", "Number of patients hospitalized with COVID-19", "#880000"),
+        avgDataset(results, "Hospitalized Patients AVG", "Number of patients hospitalized with COVID-19", "#000080"),
+        simpleDataset(results, "Patients in ICU", "Number of patients in ICU with COVID-19", "#008800"),
+        avgDataset(results, "Patients in ICU AVG", "Number of patients in ICU with COVID-19", "#000080"),
+        simpleDataset(results, "Patients on a Ventilator", "Number of patients in ICU on a ventilator with COVID-19", "#000088"),
+        avgDataset(results, "Patients on a Ventilator AVG", "Number of patients in ICU on a ventilator with COVID-19", "#000080"),
+    );
+    for (let i = 0; i < dispChart.data.datasets.length; i++) {
+        dispChart.getDatasetMeta(i).hidden = hiddens[i];
+    }
+    dispChart.update();
+}
 
-    results = results.result.records; //get to the actual data
+function displayResults(inputData) {
+    //console.log(results);
+    fullResults = inputData.result.records;
+    results = inputData.result.records; //get to the actual data
 
     var context = $("#display")[0].getContext('2d');
     
-    var dispChart = new Chart(context, {
+    dispChart = new Chart(context, {
         type: 'bar',
         data: {
             datasets: []
@@ -264,37 +315,22 @@ function displayResults(results) {
     $("#avg").change((e) => {
         avgPeriod = $("#avg").val();
         //console.log(avgPeriod);
-        var hiddens = [];
-        for (var i = 0; i < dispChart.data.datasets.length; i++) {
-            hiddens.push(dispChart.getDatasetMeta(i).hidden);
-        }
-        dispChart.data.datasets = [];
-        dispChart.data.datasets.push(
-            dailyDataset(results, "Daily New Cases", "Total Cases", "#008888"),
-            avgDailyDataset(results, "Daily New Cases AVG", "Total Cases", "#000080"),
-            simpleDataset(results, "Cumulative Cases", "Total Cases", "#000000"),
-            simpleDataset(results, "Active Cases", "Confirmed Positive", "#ff0000"),
-            avgDataset(results, "Active Cases AVG", "Confirmed Positive", "#000080"),
-            simpleDataset(results, "Resolved Cases", "Resolved", "#00ff00"),
-            dailyDataset(results, "Daily Deaths", "Deaths", "#880088"),
-            avgDailyDataset(results, "Daily Deaths AVG", "Deaths", "#000080"),
-            simpleDataset(results, "Cumulative Deaths", "Deaths", "#0000ff"),
-            simpleDataset(results, "Daily Tests Completed", "Total tests completed in the last day", "#888800"),
-            avgDataset(results, "Daily Tests Completed AVG", "Total tests completed in the last day", "#000080"),
-            simpleDataset(results, "Hospitalized Patients", "Number of patients hospitalized with COVID-19", "#880000"),
-            avgDataset(results, "Hospitalized Patients AVG", "Number of patients hospitalized with COVID-19", "#000080"),
-            simpleDataset(results, "Patients in ICU", "Number of patients in ICU with COVID-19", "#008800"),
-            avgDataset(results, "Patients in ICU AVG", "Number of patients in ICU with COVID-19", "#000080"),
-            simpleDataset(results, "Patients on a Ventilator", "Number of patients in ICU on a ventilator with COVID-19", "#000088"),
-            avgDataset(results, "Patients on a Ventilator AVG", "Number of patients in ICU on a ventilator with COVID-19", "#000080"),
-        );
-        for (var i = 0; i < dispChart.data.datasets.length; i++) {
-            dispChart.getDatasetMeta(i).hidden = hiddens[i];
-        }
-        dispChart.update();
+        regenDatasets();
     });
 
     $(document).on('input', '#avg', () => {
         $("#avg-text").text($("#avg").val() + " days");
+    });
+
+    $("#datepicker>input").change((e) => {
+        startDate = moment($('#datestart').datepicker('getDate'));
+        endDate = moment($('#dateend').datepicker('getDate'));
+        console.log(startDate.format("YYYY-MM-DDTHH:mm:ss"), endDate.format("YYYY-MM-DDTHH:mm:ss"));
+        //console.log(results);
+        let startDateIndex = results.findIndex((entry) => entry["Reported Date"] == startDate.format("YYYY-MM-DDTHH:mm:ss"));
+        let endDateIndex = results.findIndex((entry) => entry["Reported Date"] == endDate.format("YYYY-MM-DDTHH:mm:ss"));
+
+        results = fullResults.slice(startDateIndex, endDateIndex + 1);
+        regenDatasets();
     });
 }

@@ -17,7 +17,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
         <script src="./main.js"></script>
 
         
@@ -34,11 +34,19 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row my-3">
                 <div class="col">
                     <h6>Rolling Average Period</h6>
-                    <input id="avg" type="range" min="5" max = "21" value="5">
+                    <input id="avg" class = "form-control-range" type="range" min="5" max = "21" step= "2" value="5">
                     <span id="avg-text">5 days</span>
+                </div>
+                <div class="col">
+                    <h6>Range of Dates</h6>
+                    <div class="input-daterange input-group" id="datepicker">
+                        <input id="datestart" type="text" class="input-sm form-control" name="start" />
+                        <span class="input-group-addon">to</span>
+                        <input id="dateend" type="text" class="input-sm form-control" name="end" />
+                    </div>
                 </div>
             </div>
             
