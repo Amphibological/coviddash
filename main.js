@@ -329,10 +329,12 @@ function displayResults(inputData) {
         endDate = moment($('#dateend').datepicker('getDate'));
         console.log(startDate.format("YYYY-MM-DDTHH:mm:ss"), endDate.format("YYYY-MM-DDTHH:mm:ss"));
         //console.log(results);
-        let startDateIndex = results.findIndex((entry) => entry["Reported Date"] == startDate.format("YYYY-MM-DDTHH:mm:ss"));
-        let endDateIndex = results.findIndex((entry) => entry["Reported Date"] == endDate.format("YYYY-MM-DDTHH:mm:ss"));
+        let startDateIndex = fullResults.findIndex((entry) => entry["Reported Date"] == startDate.format("YYYY-MM-DDTHH:mm:ss"));
+        let endDateIndex = fullResults.findIndex((entry) => entry["Reported Date"] == endDate.format("YYYY-MM-DDTHH:mm:ss"));
 
         results = fullResults.slice(startDateIndex, endDateIndex + 1);
+        console.log(startDateIndex, endDateIndex);
+        console.log(results);
         regenDatasets();
     });
 }
