@@ -35,7 +35,7 @@ function dailyDataset(info, label, field, colour) {
     for (var i = 0; i < info.length; i++) {
         data.push({x: info[i]["Reported Date"], y: newData[i]});
     }
-    console.log(data);
+    //console.log(data);
     return {
         label: label,
         backgroundColor: colour,
@@ -50,7 +50,7 @@ function avgDailyDataset(info, label, field, colour) {
     for (var i = 0; i < info.length; i++) {
         data.push({x: info[i]["Reported Date"], y: newData[i]});
     }
-    console.log(data);
+    //console.log(data);
     return {
         label: label,
         borderColor: colour,
@@ -68,7 +68,7 @@ function avgDataset(info, label, field, colour) {
     for (var i = 0; i < info.length; i++) {
         data.push({x: info[i]["Reported Date"], y: newData[i]});
     }
-    console.log(data);
+    //console.log(data);
     return {
         label: label,
         borderColor: colour,
@@ -88,7 +88,7 @@ function avgDataFunc(oldData, field) { //takes the data normally in array
         //l1.push((l.slice(i-(avgPeriod - 1), i+1).reduce((a, b) => a + b, 0)) / avgPeriod);
         l1.push((l.slice(i - (Math.ceil(avgPeriod/2)), i + (Math.floor(avgPeriod/2))).reduce((a, b) => a + b, 0)) / avgPeriod);
     }
-    console.log(l1);
+    //console.log(l1);
     return l1
 }
 
@@ -101,7 +101,7 @@ function avgDailyDataFunc(oldData) { //takes the data normally in array
         //l1.push((l.slice(i-(avgPeriod - 1), i+1).reduce((a, b) => a + b, 0)) / avgPeriod);
         l1.push((l.slice(i - (Math.ceil(avgPeriod/2)), i + (Math.floor(avgPeriod/2))).reduce((a, b) => a + b, 0)) / avgPeriod);
     }
-    console.log(l1);
+    //console.log(l1);
     return l1
 }
 
@@ -114,12 +114,12 @@ function dailyDataFunc(oldData, field) {
         l1.push(l[i] - l[i - 1]);
     }
     l1.shift();
-    console.log(l1);
+    //console.log(l1);
     return l1
 }
 
 function displayResults(results) {
-    console.log(results);
+    //console.log(results);
 
     results = results.result.records; //get to the actual data
 
@@ -289,7 +289,7 @@ function displayResults(results) {
             avgDataset(results, "Patients on a Ventilator AVG", "Number of patients in ICU on a ventilator with COVID-19", "#000080"),
         );
         for (var i = 0; i < dispChart.data.datasets.length; i++) {
-            dispChart.getDatasetMeta(i).hidden = hiddens[i];
+            dispChart.getDatasetMeta(i).hidden = hiddens;
         }
         dispChart.update();
     });
