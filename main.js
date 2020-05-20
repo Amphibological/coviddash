@@ -10,6 +10,8 @@ https://data.ontario.ca/dataset/status-of-covid-19-cases-in-ontario/resource/ed2
 KNOWN BUGS:
 - FIXED Date range change function (INCREASING ENDPOINT) fails when averages are enabled
 - FIXED Checkboxes not properly disabling when double-click is used to change datasets
+- Disabling a dataset with average checked leaves the average on display
+- The moving average period range slider causes a reload even when no moving average is on display
 
 */
 
@@ -27,6 +29,7 @@ $(document).ready(() => { // Triggers once site is properly loaded
         url: 'https://data.ontario.ca/api/3/action/datastore_search',
         data: {
             resource_id: 'ed270bb8-340b-41f9-a7c6-e8ef587e6d11', // the resource id
+            limit: 32000,
         },
         dataType: 'jsonp',
         cache: 'true', // do not send timestamp parameter (will not work with data source)
@@ -53,6 +56,7 @@ function setupPreData() {
 function setupPostData() {
     // finding the date of the final data point
     dataEndDate = moment(fullData[fullData.length - 1]["Reported Date"]);
+    console.log(dataEndDate);
 
     // setting the inital values of the datepicker to the full range
     $('#datestart').datepicker('update', dataStartDate.toDate());
@@ -172,13 +176,13 @@ function genDatasets() {
         dataset(avgDailyDataFunc, "Daily Deaths AVG", "Deaths", "#000080", true),
         dataset(simpleDataFunc, "Cumulative Deaths", "Deaths", "#0000ff"),
         dataset(simpleDataFunc, "Daily Tests Completed", "Total tests completed in the last day", "#888800"),
-        dataset(avgDataFunc, "Daily Tests Completed AVG", "Total tests completed in the last day", "#000080"),
+        dataset(avgDataFunc, "Daily Tests Completed AVG", "Total tests completed in the last day", "#000080", true),
         dataset(simpleDataFunc, "Hospitalized Patients", "Number of patients hospitalized with COVID-19", "#880000"),
-        dataset(avgDataFunc, "Hospitalized Patients AVG", "Number of patients hospitalized with COVID-19", "#000080"),
+        dataset(avgDataFunc, "Hospitalized Patients AVG", "Number of patients hospitalized with COVID-19", "#000080", true),
         dataset(simpleDataFunc, "Patients in ICU", "Number of patients in ICU with COVID-19", "#008800"),
-        dataset(avgDataFunc, "Patients in ICU AVG", "Number of patients in ICU with COVID-19", "#000080"),
+        dataset(avgDataFunc, "Patients in ICU AVG", "Number of patients in ICU with COVID-19", "#000080", true),
         dataset(simpleDataFunc, "Patients on a Ventilator", "Number of patients in ICU on a ventilator with COVID-19", "#000088"),
-        dataset(avgDataFunc, "Patients on a Ventilator AVG", "Number of patients in ICU on a ventilator with COVID-19", "#000080"),
+        dataset(avgDataFunc, "Patients on a Ventilator AVG", "Number of patients in ICU on a ventilator with COVID-19", "#000080", true),
     );
 
     // restore the hidden status of all datasets
