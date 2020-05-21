@@ -133,7 +133,7 @@ function dailyDataFunc(oldData, field) {
 function avgDataFunc(oldData, field) {
     l = oldData.map((t) => t[field]); // convert each "line" of data to just the required field
     l1 = [];
-    for (let i = 0; i < l.length; i++) { 
+    for (let i = 0; i < l.length; i++) { // for each data point, calculate the average of *avgPeriod* points around it
         l1.push((l.slice(i - (Math.floor(avgPeriod/2)), i + (Math.ceil(avgPeriod/2))).reduce((a, b) => a + b, 0)) / avgPeriod);
     }
     return l1
