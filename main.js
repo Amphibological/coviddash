@@ -10,9 +10,9 @@ https://data.ontario.ca/dataset/status-of-covid-19-cases-in-ontario/resource/ed2
 KNOWN BUGS:
 - FIXED Date range change function (INCREASING ENDPOINT) fails when averages are enabled
 - FIXED Checkboxes not properly disabling when double-click is used to change datasets
-- Disabling a dataset with average checked leaves the average on display
-- The moving average period range slider causes a reload even when no moving average is on display
-
+- FIXED Disabling a dataset with average checked leaves the average on display
+- FIXED The moving average period range slider causes a reload even when no moving average is on display
+- The moving average is inaccurate at the ends due to utilizing null values from outside the boundary of the dataset
 */
 
 let avgPeriod = 5; // Period for moving average calculation (i.e number of data points used to calculate each day) | Must be an odd number |
@@ -283,14 +283,15 @@ function setupDisplay(inputData) {
             // if the checkbox is disabled, enable it
             if ($(e.target).children("input")[0].hasAttribute("disabled")) {
                 $(e.target).children("input").removeAttr("disabled");
-            } else { // if it's enabled, disable it and uncheck it
+            } else { // if it's enabled, disable it and the range control and uncheck it
                 $(e.target).children("input").attr("disabled", true);
                 $(e.target).children("input").prop("checked", false);
+                $("#avg").attr("disabled", true);
 
-                // find the corresponding average and disable it (NOT WORKING)
-                //let index = dispChart.data.datasets.findIndex((ds) => ds.label == ($(e.target).parent().text().split("Average")[0] + " AVG"));
-                //dispChart.getDatasetMeta(index).hidden = true;
-                //dispChart.update();
+                // find the corresponding average to the clicked button
+                let index = dispChart.data.datasets.findIndex((ds) => ds.label == ($(e.target).parent().text().split("Average")[0] + " AVG"));
+                dispChart.getDatasetMeta(index).hidden = true; // disable it and update the display
+                dispChart.update();
             }
         }
 
@@ -312,20 +313,22 @@ function setupDisplay(inputData) {
         $("#btns").children().removeClass("active"); // deactivate all buttons
         $("#btns").children().children("input").prop("checked", false); // uncheck and disable all checkboxes
         $("#btns").children().children("input").attr("disabled", true);
+        $("#avg").attr("disabled", true); // disable the range control
         
         // If the button has a checkbox inside it
         if ($(e.target).children().length) {
             // if the checkbox is disabled, enable it
             if ($(e.target).children("input")[0].hasAttribute("disabled")) {
                 $(e.target).children("input").removeAttr("disabled");
-            } else { // if it's enabled, disable it and uncheck it
+            } else { // if it's enabled, disable it and the range control and uncheck it
                 $(e.target).children("input").attr("disabled", true);
                 $(e.target).children("input").prop("checked", false);
+                $("#avg").attr("disabled", true);
 
-                // find the corresponding average and disable it (NOT WORKING)
-                //let index = dispChart.data.datasets.findIndex((ds) => ds.label == ($(e.target).parent().text().split("Average")[0] + " AVG"));
-                //dispChart.getDatasetMeta(index).hidden = true;
-                //dispChart.update();
+                // find the corresponding average to the double clicked button
+                let index = dispChart.data.datasets.findIndex((ds) => ds.label == ($(e.target).parent().text().split("Average")[0] + " AVG"));
+                dispChart.getDatasetMeta(index).hidden = true; // disable it
+                dispChart.update(); // update the display
             }
         }
 
@@ -350,11 +353,13 @@ function setupDisplay(inputData) {
         // find the AVG dataset corresponding to the checkbox (split on Average to ignore the checkbox text)
         let index = dispChart.data.datasets.findIndex((ds) => ds.label == ($(e.target).parent().text().split("Average")[0] + " AVG"));
         
-        // show or hide the dataset depending on the status of the checkbox
+        // show or hide the dataset and enable or disable the range control depending on the status of the checkbox
         if ($(e.target).is(":checked")) {
             dispChart.getDatasetMeta(index).hidden = false;
+            $("#avg").attr("disabled", false);
         } else {
             dispChart.getDatasetMeta(index).hidden = true;
+            $("#avg").attr("disabled", true);
         }
 
         dispChart.update(); // update the dataset
