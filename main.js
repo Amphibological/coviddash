@@ -270,90 +270,119 @@ function setupDisplay(inputData) {
         }
     });
 
+    // When the user clicks a dataset button
     $(".btn").click((e) => {
-        console.log(dispChart.data.datasets);
+        // ensure that the click is on the actual button and not on one of the inner buttons
         if (!$(e.target).is("button")) {
              return;
         }
-        $(e.target).toggleClass("active");
-        //console.log($(e.target).children("input"));
+        $(e.target).toggleClass("active"); // change whether the button is active
+
+        // If the button has a checkbox inside it
         if ($(e.target).children().length) {
+            // if the checkbox is disabled, enable it
             if ($(e.target).children("input")[0].hasAttribute("disabled")) {
                 $(e.target).children("input").removeAttr("disabled");
-            } else {
+            } else { // if it's enabled, disable it and uncheck it
                 $(e.target).children("input").attr("disabled", true);
                 $(e.target).children("input").prop("checked", false);
-                let index = dispChart.data.datasets.findIndex((ds) => ds.label == ($(e.target).parent().text().split("Average")[0] + " AVG"));
-                dispChart.getDatasetMeta(index).hidden = true;
-                dispChart.update();
+
+                // find the corresponding average and disable it (NOT WORKING)
+                //let index = dispChart.data.datasets.findIndex((ds) => ds.label == ($(e.target).parent().text().split("Average")[0] + " AVG"));
+                //dispChart.getDatasetMeta(index).hidden = true;
+                //dispChart.update();
             }
         }
+
+        // find the dataset of the button which was clicked (split on Average to disregard the checkbox text)
         let index = dispChart.data.datasets.findIndex((ds) => ds.label == $(e.target).text().split("Average")[0]);
+       
+        // Toggle whether it is hidden from the chart display and update
         dispChart.getDatasetMeta(index).hidden = !dispChart.getDatasetMeta(index).hidden;
         dispChart.update();
     });
 
+    // When the user double clicks a dataset button
     $(".btn").dblclick((e) => {
-        //console.log(fields.indexOf($(e.target).html()));
+        // ensure that the click is on the actual button and not on one of the inner buttons
         if (!$(e.target).is("button")) {
             return;
         }
-        $("#btns").children().removeClass("active");
-        console.log($("#btns").children().children("input"));
-        $("#btns").children().children("input").prop("checked", false);
+
+        $("#btns").children().removeClass("active"); // deactivate all buttons
+        $("#btns").children().children("input").prop("checked", false); // uncheck and disable all checkboxes
         $("#btns").children().children("input").attr("disabled", true);
+        
+        // If the button has a checkbox inside it
         if ($(e.target).children().length) {
+            // if the checkbox is disabled, enable it
             if ($(e.target).children("input")[0].hasAttribute("disabled")) {
                 $(e.target).children("input").removeAttr("disabled");
-            } else {
+            } else { // if it's enabled, disable it and uncheck it
                 $(e.target).children("input").attr("disabled", true);
                 $(e.target).children("input").prop("checked", false);
-                let index = dispChart.data.datasets.findIndex((ds) => ds.label == ($(e.target).parent().text().split("Average")[0] + " AVG"));
-                dispChart.getDatasetMeta(index).hidden = true;
-                dispChart.update();
+
+                // find the corresponding average and disable it (NOT WORKING)
+                //let index = dispChart.data.datasets.findIndex((ds) => ds.label == ($(e.target).parent().text().split("Average")[0] + " AVG"));
+                //dispChart.getDatasetMeta(index).hidden = true;
+                //dispChart.update();
             }
         }
-        $(e.target).addClass("active");
+
+        $(e.target).addClass("active"); // activate the clicked button
+
+        // hide all the datasets from the chart view
         for (let i = 0; i < dispChart.data.datasets.length; i++) {
             dispChart.getDatasetMeta(i).hidden = true;
         }
+
+        // find the dataset of the button which was clicked (split on Average to disregard the checkbox text)
         let index = dispChart.data.datasets.findIndex((ds) => ds.label == $(e.target).text().split("Average")[0]);
+        
+        // enable the selected dataset and update it
         dispChart.getDatasetMeta(index).hidden = false;
         dispChart.update();
     });
 
+    // When a checkbox is changed
     $(".check").change((e) => {
-        console.log($(e.target).parent().text().split("Average")[0]);
+
+        // find the AVG dataset corresponding to the checkbox (split on Average to ignore the checkbox text)
         let index = dispChart.data.datasets.findIndex((ds) => ds.label == ($(e.target).parent().text().split("Average")[0] + " AVG"));
+        
+        // show or hide the dataset depending on the status of the checkbox
         if ($(e.target).is(":checked")) {
             dispChart.getDatasetMeta(index).hidden = false;
         } else {
             dispChart.getDatasetMeta(index).hidden = true;
         }
-        dispChart.update();
+
+        dispChart.update(); // update the dataset
     });
+
+    // When the average range control is changed
 
     $("#avg").change((e) => {
-        avgPeriod = $("#avg").val();
-        //console.log(avgPeriod);
-        genDatasets();
+        avgPeriod = $("#avg").val(); // update the average period variable
+        genDatasets(); // regerate all datasets
     });
 
+    // When the average control is moved (different from being changed, which is when it is moved and released)
     $(document).on('input', '#avg', () => {
-        $("#avg-text").text($("#avg").val() + " days");
+        $("#avg-text").text($("#avg").val() + " days"); // update the element showing the setting
     });
 
+    // When the either of the datepicker inputs change
     $("#datepicker>input").change((e) => {
+        // get the starting and ending dates from the datepicker in Moment.js format
         startDate = moment($('#datestart').datepicker('getDate'));
         endDate = moment($('#dateend').datepicker('getDate'));
-        console.log(startDate.format("YYYY-MM-DDTHH:mm:ss"), endDate.format("YYYY-MM-DDTHH:mm:ss"));
-        //console.log(results);
+
+        // get the indexes of these dates in the original data
         let startDateIndex = fullData.findIndex((entry) => entry["Reported Date"] == startDate.format("YYYY-MM-DDTHH:mm:ss"));
         let endDateIndex = fullData.findIndex((entry) => entry["Reported Date"] == endDate.format("YYYY-MM-DDTHH:mm:ss"));
 
-        data = fullData.slice(startDateIndex, endDateIndex + 1);
-        console.log(startDateIndex, endDateIndex);
-        console.log(data);
-        genDatasets();
+        data = fullData.slice(startDateIndex, endDateIndex + 1); // slice out that data
+        genDatasets(); // and regenerate the datasets
     });
 }
