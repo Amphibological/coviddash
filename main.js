@@ -212,6 +212,7 @@ function setupDisplay(inputData) {
             datasets: [] // datasets will be added later dynamically
         },
         options: {
+            maintainAspectRatio: false,
             legend: {
                 labels: {
                     filter: function(legendItem, chart) {
